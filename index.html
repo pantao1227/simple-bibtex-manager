@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <title>Test</title>
+    <meta charset="utf-8" />
+    <script src="bibtexParse.js"></script>
+    <script defer src="Font-Awesome-All.js"></script>
+    <style>
+        .wx-item > div > h1::after {
+            margin-left: 10px;
+            color: #ccc;
+        }
+        .citationKey {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="nav">
+        <label for="file-input" id="file-input-label">Open</label>
+        <input id="file-input" type="file" accept=".bib,.txt" />
+    </div>
+    <div id="main"></div>
+<script>
+    var array_json;
+    // 下面函数来自 https://www.runoob.com/js/js-obj-date.html
+    Date.prototype.format = function(fmt){
+        var o = {
+            "M+" : this.getMonth()+1,                 //月份
+            "d+" : this.getDate(),                    //日
+            "h+" : this.getHours(),                   //小时
+            "m+" : this.getMinutes(),                 //分
+            "s+" : this.getSeconds(),                 //秒
+            "q+" : Math.floor((this.getMonth()+3)/3), //季度
+            "S"  : this.getMilliseconds()             //毫秒
+        };
+
+        if(/(y+)/.test(fmt)){
+            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+        }
+                
+        for(var k in o){
+            if(new RegExp("("+ k +")").test(fmt)){
+            fmt = fmt.replace(
+                RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));  
+            }       
+        }
+        return fmt;
+    }
+    function date_time() {
+        return(new Date().format("yyyy-MM-dd hh:mm:ss"));
+    }
+
+    function get_citationKeyList() {
+        return array_json.map(function(item){
+            return item['citationKey'];
+        });
+    }
+
+    function citationKey_unique_check() {
+        console.log('@citationKey_unique_check();')
+        var r = true;
+        keylist = get_citationKeyList();
+        keylist.forEach(function(item){
+            if(keylist.indexOf(item) != keylist.lastIndexOf(item)) {
+                r = false;
+                its = document.getElementsByName("citationKey");
+                console.log(its);
+                console.log(item);
+                for (let i = 0; i < its.length; i++) {
+                    if (its[i].innerHTML == item) {
+                        its[i].classList.add("err");
+                    }
+                }
+            }
+        });
+        if(r==false) {
+            alert("警告：发现重复记录名！");
+        }
+        return r;
+    }
+
+    document.querySelector("#file-input").addEventListener('change', function() {
+        // files that user has chosen
+        var all_files = this.files;
+        if(all_files.length == 0) {
+            alert('Error : No file selected');
+            return;
+        }
+
+        var file = all_files[0];
+
+        // Max 2 MB allowed
+        var max_size_allowed = 10*1024*1024
+        if(file.size > max_size_allowed) {
+            alert('Error : Exceeded size 10MB');
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.addEventListener('loadstart', function() {
+            document.querySelector("#file-input-label").style.display = 'none';
+        });
+
+        reader.addEventListener('load', function(e) {
+            var text = e.target.result;
+            array_json = bibtexParse.toJSON(text);
+            updateContent();
+        });
+
+        reader.addEventListener('error', function() {
+            alert('Error : Failed to read file');
+        });
+
+        // read as text file
+        reader.readAsText(file);
+    });
+    function addStylesheetRules (decls) {
+        var style = document.createElement('style');
+        document.getElementsByTagName('head')[0].appendChild(style);
+        if (!window.createPopup) { /* For Safari */
+        style.appendChild(document.createTextNode(''));
+        }
+        var s = document.styleSheets[document.styleSheets.length - 1];
+        for (var i=0, dl = decls.length; i < dl; i++) {
+            var j = 1, decl = decls[i], selector = decl[0], rulesStr = '';
+            if (Object.prototype.toString.call(decl[1][0]) === '[object Array]') {
+                decl = decl[1];
+                j = 0;
+            }
+            for (var rl=decl.length; j < rl; j++) {
+                var rule = decl[j];
+                rulesStr += rule[0] + ':' + rule[1] + (rule[2] ? ' !important' : '') + ';\n';
+            }
+
+            if (s.insertRule) {
+                s.insertRule(selector + '{' + rulesStr + '}', s.cssRules.length);
+            }
+            else { /* IE */
+                s.addRule(selector, rulesStr, -1);
+            }
+        }
+    }
+    function updateContent() {
+        document.getElementById("main").innerHTML = '';
+        function gen_item_title(id, citationKey, entryType) {
+            var div = document.createElement("DIV");
+            var h1 = document.createElement("H1");
+            var btn = document.createElement("BUTTON");
+            div.setAttribute("class", "citationKey");
+            h1.innerHTML = citationKey;
+            addStylesheetRules([
+                ['#wx'+ id + ' > div > h1::after',
+                    ['content', "'" + entryType + "'"]
+                ]
+            ]);
+            btn.setAttribute("type", "button");
+            btn.setAttribute("class", "btn_cite_it_in_latex")
+            btn.innerHTML = '<i class="far fa-copy"></i> LaTex Code';
+            div.appendChild(h1);
+            div.appendChild(btn);
+            return div;
+        }
+        function gen_item_p(key, value) {
+            var p = document.createElement("p");
+            if (key == "abstract") {
+                p.setAttribute("style", "max-width:400px;")
+            }
+            var psp1 = document.createElement("span");
+            var psp2 = document.createElement("span");
+            psp1.setAttribute("name", "entry_tag");
+            psp2.setAttribute("name", "entry_tag_value");
+            psp1.appendChild(document.createTextNode(key));
+            psp2.appendChild(document.createTextNode(value));
+            p.appendChild(psp1);
+            p.appendChild(psp2);
+            return p;
+        }
+        for (let i = 0; i < array_json.length; i++) {
+            var curr_entryTags = array_json[i]["entryTags"];
+            var new_item = document.createElement('div');
+            new_item.setAttribute("class", "wx-item");
+            new_item.setAttribute("id", 'wx'+i);
+            div_index = document.createElement("DIV");
+            div_index.appendChild(document.createTextNode(i+1));
+            div_index.setAttribute("class", "item_index");
+            new_item.appendChild(div_index);
+            new_item.appendChild(gen_item_title(i, array_json[i]["citationKey"], array_json[i]["entryType"]));
+            for (var k in curr_entryTags) {
+                new_item.appendChild(gen_item_p(k, curr_entryTags[k]));
+            }
+            // if(document.getElementById("main").innerHTML != ''){
+            //     document.getElementById("main").innerHTML += '<hr>';
+            // }
+            document.getElementById("main").appendChild(new_item);
+        }
+        citationKey_unique_check();
+    }
+</script>
+</body>
+</html>
