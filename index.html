@@ -6,13 +6,46 @@
     <script src="bibtexParse.js"></script>
     <script defer src="Font-Awesome-All.js"></script>
     <style>
-        .wx-item > div > h1::after {
-            margin-left: 10px;
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+        h1 {
+            line-height: 25px;
+            font-size: 25px;
+            padding: 5px 0px;
+        }
+        p {
+            line-height: 20px;
+            font-size: 20px;
+            padding: 5px 0px;
+        }
+        .wx-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            margin: 20px 40px;
+            padding: 5px 10px;
+            box-shadow: 0px 0px 5px #ccc;
+        }
+        .wx-item > button {
+            width: 128px;
+            height: 30px;
+        }
+        .wx-item > h1::after {
+            margin: 0px 10px;
             color: #ccc;
         }
-        .citationKey {
-            display: flex;
-            align-items: center;
+        .wx-item > p::before {
+            margin-right: 10px;
+        }
+        .wx-item > p {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 800px;
+            grid-column-start: 1;
+            grid-column-end: 3;
         }
     </style>
 </head>
@@ -145,36 +178,24 @@
     function updateContent() {
         document.getElementById("main").innerHTML = '';
         function gen_item_title(id, citationKey, entryType) {
-            var div = document.createElement("DIV");
             var h1 = document.createElement("H1");
-            var btn = document.createElement("BUTTON");
-            div.setAttribute("class", "citationKey");
             h1.innerHTML = citationKey;
             addStylesheetRules([
-                ['#wx'+ id + ' > div > h1::after',
+                ['#wx'+ id + ' > h1::after',
                     ['content', "'" + entryType + "'"]
                 ]
             ]);
-            btn.setAttribute("type", "button");
-            btn.setAttribute("class", "btn_cite_it_in_latex")
-            btn.innerHTML = '<i class="far fa-copy"></i> LaTex Code';
-            div.appendChild(h1);
-            div.appendChild(btn);
-            return div;
+            return h1;
         }
-        function gen_item_p(key, value) {
-            var p = document.createElement("p");
-            if (key == "abstract") {
-                p.setAttribute("style", "max-width:400px;")
-            }
-            var psp1 = document.createElement("span");
-            var psp2 = document.createElement("span");
-            psp1.setAttribute("name", "entry_tag");
-            psp2.setAttribute("name", "entry_tag_value");
-            psp1.appendChild(document.createTextNode(key));
-            psp2.appendChild(document.createTextNode(value));
-            p.appendChild(psp1);
-            p.appendChild(psp2);
+        function gen_item_p(id, key, value) {
+            var p = document.createElement("P");
+            p.innerHTML = value;
+            p.setAttribute("name", key)
+            addStylesheetRules([
+                ["#wx" + id + " > p[name='" + key + "']::before",
+                ['content', "'" + key + " ⇒'"]
+            ]
+            ]);
             return p;
         }
         for (let i = 0; i < array_json.length; i++) {
@@ -182,17 +203,16 @@
             var new_item = document.createElement('div');
             new_item.setAttribute("class", "wx-item");
             new_item.setAttribute("id", 'wx'+i);
-            div_index = document.createElement("DIV");
-            div_index.appendChild(document.createTextNode(i+1));
-            div_index.setAttribute("class", "item_index");
-            new_item.appendChild(div_index);
+            new_item.setAttribute('wxid', i);
             new_item.appendChild(gen_item_title(i, array_json[i]["citationKey"], array_json[i]["entryType"]));
+            var btn = document.createElement("BUTTON");
+            btn.setAttribute("type", "button");
+            btn.setAttribute("class", "btn_cite_it_in_latex")
+            btn.innerHTML = '<i class="far fa-copy"></i> LaTex Code';
+            new_item.appendChild(btn);
             for (var k in curr_entryTags) {
-                new_item.appendChild(gen_item_p(k, curr_entryTags[k]));
+                new_item.appendChild(gen_item_p(i, k, curr_entryTags[k]));
             }
-            // if(document.getElementById("main").innerHTML != ''){
-            //     document.getElementById("main").innerHTML += '<hr>';
-            // }
             document.getElementById("main").appendChild(new_item);
         }
         citationKey_unique_check();
