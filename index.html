@@ -10,50 +10,74 @@
             padding: 0px;
             margin: 0px;
         }
-        h1 {
-            line-height: 25px;
-            font-size: 25px;
-            padding: 5px 0px;
+        #file-input {
+            display: none;
         }
-        p {
-            line-height: 20px;
-            font-size: 20px;
-            padding: 5px 0px;
-        }
-        .wx-item {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            align-items: center;
-            margin: 20px 40px;
-            padding: 5px 10px;
-            box-shadow: 0px 0px 5px #ccc;
-        }
-        .wx-item > button {
-            width: 128px;
+        nav {
+            position: fixed;
+            top: 0px;
+            box-sizing: border-box;
+            width: 100%;
             height: 30px;
+            padding: 0px 10px;
+            box-shadow: 0px 2px 5px #ccc;
+            display: flex;
+            background-color: #fff;
         }
-        .wx-item > h1::after {
-            margin: 0px 10px;
-            color: #ccc;
+        nav > div {
+            line-height: 30px;
         }
-        .wx-item > p::before {
+        nav > div:hover {
+            background-color: #ccc;
+        }
+        #main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+        }
+        #main table {
+            table-layout: fixed;
+            width: 800px;
+            box-shadow: 0px 0px 10px #ccc;
+            margin: 15px 0px;
+            padding: 10px 10px;
+        }
+        #main table tr {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            align-items: center;
+            line-height: 30px;
+        }
+        #main table > tr > th {
+            text-align: right;
             margin-right: 10px;
         }
-        .wx-item > p {
+        #main table > tr > td {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 800px;
-            grid-column-start: 1;
-            grid-column-end: 3;
+            text-align: left;
+        }
+        #main table > caption {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+        }
+        #main table > caption > h1::after {
+            margin-left: 10px;
+            color: #ccc;
         }
     </style>
 </head>
 <body>
-    <div id="nav">
-        <label for="file-input" id="file-input-label">Open</label>
-        <input id="file-input" type="file" accept=".bib,.txt" />
-    </div>
+    <nav>
+        <div>
+            <label for="file-input" id="file-input-label">Open</label>
+            <input id="file-input" type="file" accept=".bib,.txt" />
+        </div>
+    </nav>
     <div id="main"></div>
 <script>
     var array_json;
@@ -177,43 +201,45 @@
     }
     function updateContent() {
         document.getElementById("main").innerHTML = '';
-        function gen_item_title(id, citationKey, entryType) {
+        function gen_caption(id, citationKey, entryType) {
+            var caption = document.createElement("CAPTION");
             var h1 = document.createElement("H1");
             h1.innerHTML = citationKey;
             addStylesheetRules([
-                ['#wx'+ id + ' > h1::after',
+                ['#wx'+ id + ' h1::after',
                     ['content', "'" + entryType + "'"]
                 ]
             ]);
-            return h1;
-        }
-        function gen_item_p(id, key, value) {
-            var p = document.createElement("P");
-            p.innerHTML = value;
-            p.setAttribute("name", key)
-            addStylesheetRules([
-                ["#wx" + id + " > p[name='" + key + "']::before",
-                ['content', "'" + key + " ⇒'"]
-            ]
-            ]);
-            return p;
-        }
-        for (let i = 0; i < array_json.length; i++) {
-            var curr_entryTags = array_json[i]["entryTags"];
-            var new_item = document.createElement('div');
-            new_item.setAttribute("class", "wx-item");
-            new_item.setAttribute("id", 'wx'+i);
-            new_item.setAttribute('wxid', i);
-            new_item.appendChild(gen_item_title(i, array_json[i]["citationKey"], array_json[i]["entryType"]));
             var btn = document.createElement("BUTTON");
             btn.setAttribute("type", "button");
             btn.setAttribute("class", "btn_cite_it_in_latex")
             btn.innerHTML = '<i class="far fa-copy"></i> LaTex Code';
-            new_item.appendChild(btn);
+            caption.appendChild(h1);
+            caption.appendChild(btn);
+            return caption;
+        }
+        function gen_item_tr(id, key, value) {
+            var tr = document.createElement("TR");
+            var th = document.createElement("TH");
+            var td = document.createElement("TD");
+            th.innerHTML = key;
+            td.innerHTML = value;
+            tr.appendChild(th);
+            tr.appendChild(td);
+            return tr;
+        }
+        for (let i = 0; i < array_json.length; i++) {
+            var curr_entryTags = array_json[i]["entryTags"];
+            var table = document.createElement("TABLE");
+            table.setAttribute("id", 'wx'+i);
+            table.setAttribute('wxid', i);
+            // 表格标题
+            table.appendChild(gen_caption(i, array_json[i]["citationKey"], array_json[i]["entryType"]));
+            // 表格内容     
             for (var k in curr_entryTags) {
-                new_item.appendChild(gen_item_p(i, k, curr_entryTags[k]));
+                table.appendChild(gen_item_tr(i, k, curr_entryTags[k]));
             }
-            document.getElementById("main").appendChild(new_item);
+            document.getElementById("main").appendChild(table);
         }
         citationKey_unique_check();
     }
