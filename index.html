@@ -105,6 +105,8 @@
         }
         return fmt;
     }
+
+    // 快捷获取时间日期
     function date_time() {
         return(new Date().format("yyyy-MM-dd hh:mm:ss"));
     }
@@ -116,7 +118,6 @@
     }
 
     function citationKey_unique_check() {
-        console.log('@citationKey_unique_check();')
         var r = true;
         keylist = get_citationKeyList();
         keylist.forEach(function(item){
