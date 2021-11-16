@@ -4,18 +4,23 @@
     <title>Test</title>
     <meta charset="utf-8" />
     <script src="bibtexParse.js"></script>
+    <script src="clipboard.min.js"></script>
     <script defer src="Font-Awesome-All.js"></script>
     <style>
         * {
             padding: 0px;
             margin: 0px;
         }
-        #file-input {
-            display: none;
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
         }
         nav {
-            position: fixed;
-            top: 0px;
+            flex: 0 0 30px;
             box-sizing: border-box;
             width: 100%;
             height: 30px;
@@ -24,63 +29,169 @@
             display: flex;
             background-color: #fff;
         }
+        nav * {
+            user-select: none;
+        }
         nav > div {
-            line-height: 30px;
+            display: flex;
+            align-items: center;
+            margin: 0px 10px;
+        }
+        nav > div > input {
+            display: none;
+        }
+        nav > div > button {
+            display: none;
         }
         nav > div:hover {
             background-color: #ccc;
         }
-        #main {
+        main {
+            flex: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 40px;
+            overflow-y: auto;
+            padding-bottom: 50px;
         }
-        #main table {
+        main table {
             table-layout: fixed;
-            width: 800px;
+            width: 900px;
             box-shadow: 0px 0px 10px #ccc;
             margin: 15px 0px;
             padding: 10px 10px;
+            position: relative;
         }
-        #main table tr {
+        main table tr {
             display: grid;
-            grid-template-columns: 100px 1fr;
+            grid-template-columns: 128px 1fr;
             align-items: center;
             line-height: 30px;
+            position: relative;
         }
-        #main table > tr > th {
+        main table > tr > th {
             text-align: right;
             margin-right: 10px;
         }
-        #main table > tr > td {
+        main table > tr > td {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: left;
         }
-        #main table > caption {
+        main table > caption {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             padding: 10px 20px;
+            flex-wrap: wrap;
         }
-        #main table > caption > h1::after {
+        main table > caption > br {
+            width: 100%;
+            box-sizing: border-box;
+            content: '';
+        }
+        main table > caption > button {
+            margin-left: 10px;
+            width: 90px;
+        }
+        main table > caption > h1 {
+            flex: 1;
+            text-align: left;
+        }
+        main table > caption > h1::after {
             margin-left: 10px;
             color: #ccc;
+        }
+        #bottomMsgPannel {
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0);
+            position: fixed;
+            bottom: 40%;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        #bottomMsgPannel div {
+            display: flex;
+            background-color: rgba(38, 117, 148, 0.95);
+            border: 1px solid #000;
+            box-shadow: 0px 0px 5px 1px #666;
+            color: white;
+            min-width: 512px;
+            min-height: 36px;
+            align-items: center;
+            justify-content: center;
+        }
+        #bottomMsgPannel div > p {
+            flex: 1;
+            line-height: 25px;
+            margin: 0px 15px;
+            text-align: center;
+        }
+        #bottomMsgPannel div > button {
+            flex: 0;
+            flex-basis: 25px;
+            background-color: rgba(255, 255, 255, 0);
+            border: none;
+            color: white;
+        }
+        .err {
+            border: 3px solid red;
+        }
+        .err::after {
+            content: "ERR";
+            color: red;
+            position: absolute;
+            top: 0px;
+            right: 20px;
+            border-bottom: 3px solid red;
+            border-left: 3px solid red;
+            border-right: 3px solid red;
+            border-radius: 0px 0px 8px 8px;
+            padding: 0px 2px;
+        }
+        .btn_cancel_edit {
+            background: #f00;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+        }
+        .btn_cancel_edit:hover{
+            background: rgb(112, 0, 0);
+        }
+        .click_to_edit {
+            border: 1px solid #ccc;
+        }
+        .click_to_edit:hover {
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
     <nav>
         <div>
-            <label for="file-input" id="file-input-label">Open</label>
+            <label for="file-input" id="file-input-label">打开</label>
             <input id="file-input" type="file" accept=".bib,.txt" />
         </div>
+        <div>
+            <label for="add-button">添加</label>
+            <button id="add-button" type="button"></button>
+        </div>
+        <div>
+            <label for="save-file-button">保存</label>
+            <button id="save-file-button" type="button"></button>
+        </div>
     </nav>
-    <div id="main"></div>
+    <main></main>
+    <div id="bottomMsgPannel"></div>
 <script>
     var array_json;
+
     // 下面函数来自 https://www.runoob.com/js/js-obj-date.html
     Date.prototype.format = function(fmt){
         var o = {
@@ -105,6 +216,19 @@
         }
         return fmt;
     }
+    // 下面函数来自于 https://www.jianshu.com/p/40cfe9a12f9e
+    function download(filename, text) {
+        var pom = document.createElement('a');
+        pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        pom.setAttribute('download', filename);
+        if (document.createEvent) {
+            var event = document.createEvent('MouseEvents');
+            event.initEvent('click', true, true);
+            pom.dispatchEvent(event);
+        } else {
+            pom.click();
+        }
+    }
 
     // 快捷获取时间日期
     function date_time() {
@@ -120,19 +244,15 @@
     function citationKey_unique_check() {
         var r = true;
         keylist = get_citationKeyList();
-        keylist.forEach(function(item){
-            if(keylist.indexOf(item) != keylist.lastIndexOf(item)) {
-                r = false;
-                its = document.getElementsByName("citationKey");
-                console.log(its);
-                console.log(item);
-                for (let i = 0; i < its.length; i++) {
-                    if (its[i].innerHTML == item) {
-                        its[i].classList.add("err");
-                    }
+        for(let i=0; i<keylist.length;i++) {
+            for(let j=i+1; j<keylist.length;j++) {
+                if(keylist[i] == keylist[j]) {
+                    document.getElementById('wx'+i).classList.add('err');
+                    document.getElementById('wx'+j).classList.add('err');
+                    r = false;
                 }
             }
-        });
+        }
         if(r==false) {
             alert("警告：发现重复记录名！");
         }
@@ -158,7 +278,7 @@
 
         var reader = new FileReader();
         reader.addEventListener('loadstart', function() {
-            document.querySelector("#file-input-label").style.display = 'none';
+            document.querySelector("#file-input-label").parentElement.style.display = 'none';
         });
 
         reader.addEventListener('load', function(e) {
@@ -174,6 +294,77 @@
         // read as text file
         reader.readAsText(file);
     });
+    document.getElementById("save-file-button").onclick = function () {
+        download("testfile.txt", bibtexParse.toBibtex(array_json, false));
+    }
+    document.getElementById("add-button").onclick = function() {
+        // bottom_msg('Test message.');
+        new_div = document.createElement("DIV");
+        new_div.setAttribute('id', 'add-bibtex-float-page');
+        new_div.setAttribute("style", "position: fixed; \
+        top: 0px; left: 0px; box-sizing: border-box; width: 100%; \
+        height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; \
+        flex-direction: column; align-items: center; justify-content: center;");
+        var p = document.createElement("P");
+        p.innerHTML = '在此输入 Latex 代码：'
+        var ta = document.createElement("TEXTAREA");
+        var btn_ok_add = document.createElement("BUTTON");
+        var btn_cancel_add = document.createElement("BUTTON");
+        btn_ok_add.innerHTML = '确认';
+        btn_cancel_add.innerHTML = '取消';
+        btn_ok_add.setAttribute('type', 'button');
+        btn_cancel_add.setAttribute('type', 'button');
+        //style
+        ta.setAttribute('style', "padding: 5px; \
+            width: 30%; \
+            height: 50%; \
+            border: 5px solid #000; \
+            border-radius: 10px;");
+        p.setAttribute('style', "width: 30%; \
+            background: #d5d5d5; \
+            padding: 5px; \
+            margin: 10px 0px;")
+        btn_ok_add.setAttribute('style', "width: 100px; \
+            height: 30px; \
+            margin-top: 10px;")
+        btn_cancel_add.setAttribute('style', "width: 100px; \
+            height: 30px; \
+            margin-top: 10px;")
+        // function
+        btn_cancel_add.onclick = function() {
+            updateContent();
+            document.body.removeChild(new_div);
+        }
+        btn_ok_add.onclick = function() {
+            try{
+                var txt = document.getElementById("add-bibtex-float-page").querySelector("textarea").value;
+                var new_json_array = bibtexParse.toJSON(txt);
+            } catch(err) {
+                alert(err);
+                document.body.removeChild(new_div);
+                return;
+            }
+            if (new_json_array.length == 0) {
+                alert("输入为空！");
+                document.body.removeChild(new_div);
+                return;
+            }
+            if(!array_json){
+                array_json = new_json_array;
+            } else {
+                array_json = array_json.concat(new_json_array);
+            }
+            document.body.removeChild(new_div);
+            updateContent();
+        }
+        // layout
+        new_div.appendChild(p);
+        new_div.appendChild(ta);
+        new_div.appendChild(btn_ok_add);
+        new_div.appendChild(btn_cancel_add);
+        document.querySelector('body').appendChild(new_div);
+        ta.focus();
+    }
     function addStylesheetRules (decls) {
         var style = document.createElement('style');
         document.getElementsByTagName('head')[0].appendChild(style);
@@ -200,8 +391,144 @@
             }
         }
     }
+    var mod_mode = false;
+    function mod_item_btn(e) {
+        if(e.srcElement.tagName != "BUTTON") {
+            if (e.srcElement.parentElement.tagName == "BUTTON") {
+                e.srcElement.parentElement.click();
+            } else if (e.srcElement.parentElement.parentElement.tagName == "BUTTON") {
+                e.srcElement.parentElement.parentElement.click();
+            }
+            return;
+        }
+        item_index = Number(e.srcElement.parentElement.parentElement.getAttribute('wxid'));
+        item = e.srcElement.parentElement.parentElement;
+        item.style.border = "3px solid blue";
+        var btn = item.querySelector(".btn_mod_item");
+        btn.setAttribute("class", "btn_cancel_edit");
+        btn.innerHTML = '<i class="fas fa-times"></i> 取消';
+        btn.onclick = function() {
+            updateContent();
+        }
+        var cap = item.querySelector('caption');
+        // 重命名按钮
+        btn_rn = document.createElement("BUTTON");
+        btn_rn.setAttribute("type", "button");
+        btn_rn.innerHTML = '<i class="far fa-edit"></i> 重命名';
+        btn_rn.onclick = function(event) {
+            if(event.srcElement.tagName != "BUTTON") {
+                if (event.srcElement.parentElement.tagName == "BUTTON") {
+                    event.srcElement.parentElement.click();
+                } else if (event.srcElement.parentElement.parentElement.tagName == "BUTTON") {
+                    event.srcElement.parentElement.parentElement.click();
+                }
+                updateContent();
+                return;
+            }
+            var k_pmpt = prompt("原记录名： " + array_json[item_index]['citationKey'] +
+                "\n输入新的记录名：");
+            if (k_pmpt != null && k_pmpt !='') {
+                array_json[item_index]['citationKey'] = k_pmpt;
+            }
+            updateContent();
+        }
+        // 修改文献记录类型按钮
+        btn_type = document.createElement("BUTTON");
+        btn_type.setAttribute("type", "button");
+        btn_type.innerHTML = '<i class="fas fa-quote-left"></i> 文献类型';
+        btn_type.onclick = function(event) {
+            if(event.srcElement.tagName != "BUTTON") {
+                if (event.srcElement.parentElement.tagName == "BUTTON") {
+                    event.srcElement.parentElement.click();
+                } else if (event.srcElement.parentElement.parentElement.tagName == "BUTTON") {
+                    event.srcElement.parentElement.parentElement.click();
+                }
+                updateContent();
+                return;
+            }
+            var t_pmpt = prompt("原类型： " + array_json[item_index]['entryType'] +
+                "\n输入新的记录名：");
+            if (t_pmpt != null && t_pmpt !='') {
+                array_json[item_index]['entryType'] = t_pmpt;
+            }
+            updateContent();
+        }
+        cap.appendChild(btn_rn);
+        cap.appendChild(btn_type);
+        item.querySelectorAll('td').forEach(element => {
+            element.classList.add('click_to_edit');
+            element.onclick = function() {
+                tp = element.parentElement.querySelector('th').innerHTML;
+                vl = element.innerHTML;
+                var pmpt = prompt("文献记录名：" + array_json[item_index]['citationKey'] + 
+                '\n' + tp + ' : ' + vl + '\n新值：');
+                if(pmpt != null && pmpt != '') {
+                    array_json[item_index]['entryTags'][tp] = pmpt;
+                }
+                updateContent();
+            }
+        });
+        function createDeleteTd() {
+            td = document.createElement("TD");
+            td.innerHTML = '<i class="fas fa-minus-circle"></i>';
+            td.style.position = 'absolute';
+            td.onclick = function() {
+                console.log()
+                var tp = this.parentElement.querySelector('th').innerHTML;
+                var cfm = confirm("删除 " + array_json[item_index]['citationKey'] +
+                    " 的 " + tp + " ？");
+                if (cfm == true) {
+                    delete array_json[item_index]['entryTags'][tp];
+                }
+                updateContent();
+            }
+            return td;
+        }
+        item.querySelectorAll('tr').forEach(element => {
+            var th = element.querySelector('th');
+            element.insertBefore(createDeleteTd(), th);
+        });
+        var tr = document.createElement("TR");
+        var th = document.createElement("TH");
+        var td = document.createElement("TD");
+        th.innerHTML = '<i class="fas fa-plus-circle"></i>';
+        th.onclick = function() {
+            var t_pmpt = prompt("文献记录名：" + array_json[item_index]['citationKey'] +
+            "\n输入属性名：");
+            if (t_pmpt != null && t_pmpt != '') {
+                var v_pmpt =  prompt("文献记录名：" + array_json[item_index]['citationKey'] +
+                    "\n属性名：" + t_pmpt +
+                    "\n输入属性值：");
+                if (v_pmpt != null && v_pmpt != '') {
+                    array_json[item_index]['entryTags'][t_pmpt] = v_pmpt;
+                }
+            }
+            updateContent();
+        }
+        td.innerHTML = '添加属性';
+        tr.appendChild(th);
+        tr.appendChild(td);
+        item.appendChild(tr);
+    }
+    function del_item_btn(e) {
+        if(e.srcElement.tagName != "BUTTON") {
+            if (e.srcElement.parentElement.tagName == "BUTTON") {
+                e.srcElement.parentElement.click();
+            } else if (e.srcElement.parentElement.parentElement.tagName == "BUTTON") {
+                e.srcElement.parentElement.parentElement.click();
+            }
+            return;
+        }
+        item_index = e.srcElement.parentElement.parentElement.getAttribute('wxid');
+        key = array_json[item_index]['citationKey'];
+        var cfm = confirm("删除第 " + (Number(item_index) + 1) + " 条记录？\n记录名：" + key)
+        if (cfm == true){
+            array_json.splice(item_index, 1);
+            updateContent();
+        }
+    }
     function updateContent() {
-        document.getElementById("main").innerHTML = '';
+        document.querySelector("main").innerHTML = '';
         function gen_caption(id, citationKey, entryType) {
             var caption = document.createElement("CAPTION");
             var h1 = document.createElement("H1");
@@ -211,12 +538,30 @@
                     ['content', "'" + entryType + "'"]
                 ]
             ]);
-            var btn = document.createElement("BUTTON");
-            btn.setAttribute("type", "button");
-            btn.setAttribute("class", "btn_cite_it_in_latex")
-            btn.innerHTML = '<i class="far fa-copy"></i> LaTex Code';
+            var btn_mod = document.createElement("BUTTON");
+            btn_mod.setAttribute("type", "button");
+            btn_mod.setAttribute("class", "btn_mod_item");
+            btn_mod.onclick = function(e) {
+                mod_item_btn(e);
+            }
+            btn_mod.innerHTML = '<i class="fas fa-tools"></i> 修改';
+            var btn_del = document.createElement("BUTTON");
+            btn_del.setAttribute("type", "button");
+            btn_del.setAttribute("class", "btn_del_item");
+            btn_del.onclick = function(e) {
+                del_item_btn(e);
+            }
+            btn_del.innerHTML = '<i class="far fa-trash-alt"></i> 删除';
+            var btn_to_code = document.createElement("BUTTON");
+            btn_to_code.setAttribute("type", "button");
+            btn_to_code.setAttribute("class", "btn_cite_it_in_latex")
+            btn_to_code.innerHTML = '<i class="far fa-copy"></i> LaTex 代码';
+            btn_to_code.onclick
             caption.appendChild(h1);
-            caption.appendChild(btn);
+            caption.appendChild(btn_mod);
+            caption.appendChild(btn_del);
+            caption.appendChild(btn_to_code);
+            caption.appendChild(document.createElement("BR"));
             return caption;
         }
         function gen_item_tr(id, key, value) {
@@ -229,6 +574,10 @@
             tr.appendChild(td);
             return tr;
         }
+        if(!array_json){
+            location.reload();
+            return;
+        }
         for (let i = 0; i < array_json.length; i++) {
             var curr_entryTags = array_json[i]["entryTags"];
             var table = document.createElement("TABLE");
@@ -240,9 +589,41 @@
             for (var k in curr_entryTags) {
                 table.appendChild(gen_item_tr(i, k, curr_entryTags[k]));
             }
-            document.getElementById("main").appendChild(table);
+            document.querySelector("main").appendChild(table);
         }
         citationKey_unique_check();
+    }
+    var clipboard = new ClipboardJS('.btn_cite_it_in_latex', {
+        text: function(trigger) {
+            return '\cite{' + trigger.parentElement.querySelector("h1").innerHTML + '}';
+        }
+    });
+    clipboard.on('success', function(e) {
+        bottom_msg("已复制 " + e.text + " 到粘贴版。");
+    });
+    var btm_msg_id = 0;
+    function bottom_msg(strHTML) {
+        function timeToRemove(curr_btm_msg_id) {
+            setTimeout(function(){
+                document.getElementById("bottomMsgPannel").removeChild(document.getElementById(curr_btm_msg_id));
+            }, 2000);
+        }
+        div_node = document.createElement("DIV");
+        btm_msg_id = btm_msg_id + 1;
+        div_node.setAttribute("id", "btm_msg_" + btm_msg_id);
+        p_node = document.createElement("P");
+        btn_node = document.createElement("BUTTON");
+        p_node.innerHTML = strHTML;
+        btn_node.appendChild(document.createTextNode("×"));
+        btn_node.setAttribute('type', 'button');
+        btn_node.onclick = function() {
+            to_del = this.parentElement
+            document.getElementById("bottomMsgPannel").removeChild(to_del);
+        }
+        div_node.appendChild(p_node);
+        div_node.appendChild(btn_node);
+        document.getElementById("bottomMsgPannel").appendChild(div_node);
+        timeToRemove("btm_msg_" + btm_msg_id)
     }
 </script>
 </body>
