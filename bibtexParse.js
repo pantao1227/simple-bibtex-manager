@@ -55,6 +55,8 @@
             if (this.input.substring(this.pos, this.pos + s.length) == s) {
                 this.pos += s.length;
             } else {
+                console.log(s);
+                console.log(this.input.substring(this.pos));
                 throw TypeError("Token mismatch: match", "expected " + s + ", found "
                         + this.input.substring(this.pos));
             };
