@@ -2,7 +2,7 @@
 
 ## 功能
 
-使用 [nw.js](https://nwjs.io/) 编写。
+纯 HTML + CSS + JavaScript
 
 - 读取 `.bibtex` 文件
 - 添加新的文献记录
