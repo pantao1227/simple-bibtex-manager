@@ -298,7 +298,7 @@
         reader.readAsText(file);
     });
     document.getElementById("save-file-button").onclick = function () {
-        download("testfile.txt", bibtexParse.toBibtex(array_json, false));
+        download("export.bib", bibtexParse.toBibtex(array_json, false));
     }
     document.getElementById("add-button").onclick = function() {
         // bottom_msg('Test message.');
