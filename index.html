@@ -545,6 +545,7 @@
                 mod_item_btn(e);
             }
             btn_mod.innerHTML = '<i class="fas fa-tools"></i> 修改';
+
             var btn_del = document.createElement("BUTTON");
             btn_del.setAttribute("type", "button");
             btn_del.setAttribute("class", "btn_del_item");
@@ -552,15 +553,22 @@
                 del_item_btn(e);
             }
             btn_del.innerHTML = '<i class="far fa-trash-alt"></i> 删除';
+
             var btn_to_code = document.createElement("BUTTON");
             btn_to_code.setAttribute("type", "button");
             btn_to_code.setAttribute("class", "btn_cite_it_in_latex")
             btn_to_code.innerHTML = '<i class="far fa-copy"></i> LaTex 代码';
-            btn_to_code.onclick
+
+            var btn_to_clipboard = document.createElement("BUTTON");
+            btn_to_clipboard.setAttribute("type", "button");
+            btn_to_clipboard.setAttribute("class", "btn_cp_to_clipboard");
+            btn_to_clipboard.innerHTML = '<i class="far fa-clipboard"></i> 复制';
+
             caption.appendChild(h1);
             caption.appendChild(btn_mod);
             caption.appendChild(btn_del);
             caption.appendChild(btn_to_code);
+            caption.appendChild(btn_to_clipboard);
             caption.appendChild(document.createElement("BR"));
             return caption;
         }
@@ -595,10 +603,18 @@
     }
     var clipboard = new ClipboardJS('.btn_cite_it_in_latex', {
         text: function(trigger) {
-            return '\cite{' + trigger.parentElement.querySelector("h1").innerHTML + '}';
+            return '\\cite{' + trigger.parentElement.querySelector("h1").innerHTML + '}';
         }
     });
     clipboard.on('success', function(e) {
+        bottom_msg("已复制 " + e.text + " 到粘贴版。");
+    });
+    var clipboard2 = new ClipboardJS('.btn_cp_to_clipboard', {
+        text: function(trigger) {
+            return trigger.parentElement.querySelector("h1").innerHTML;
+        }
+    });
+    clipboard2.on('success', function(e) {
         bottom_msg("已复制 " + e.text + " 到粘贴版。");
     });
     var btm_msg_id = 0;
