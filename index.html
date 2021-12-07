@@ -59,8 +59,8 @@
         }
         main table {
             table-layout: fixed;
-            width: 900px;
-            box-shadow: 0px 0px 10px #ccc;
+            width: 1024px;
+            box-shadow: 0px 0px 10px 5px #ccc;
             margin: 15px 0px;
             padding: 10px 10px;
             position: relative;
@@ -83,10 +83,13 @@
             text-align: left;
         }
         main table > caption {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            grid-template-rows: auto auto;
             align-items: center;
             padding: 10px 20px;
-            flex-wrap: wrap;
+            grid-column-gap: 10px;
+            grid-row-gap: 5px;
         }
         main table > caption > br {
             width: 100%;
@@ -94,16 +97,27 @@
             content: '';
         }
         main table > caption > button {
-            margin-left: 10px;
             width: 90px;
         }
         main table > caption > h1 {
             flex: 1;
             text-align: left;
+            grid-row-start: 1;
+            grid-row-end: 3;
         }
         main table > caption > h1::after {
             margin-left: 10px;
             color: #ccc;
+        }
+        main table::before {
+            font-family: Arial, Helvetica, sans-serif;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 18px;
+            height: 17px;
+            text-align: center;
+            box-shadow: 0 0 10px 0px #ccc;
         }
         #bottomMsgPannel {
             display: flex;
@@ -173,6 +187,56 @@
             cursor: pointer;
             background-color: rgba(0, 0, 0, 0.3);
         }
+        #cartPannel {
+            position: fixed;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            flex-direction: column;
+            visibility: hidden;
+            width: 200px;
+            height: 240px;
+            right: 20px;
+            top: 40px;
+            background-color: rgb(255, 255, 255);
+            box-shadow: -5px 0px 5px #ccc;
+            border: 1px solid #666;
+            padding: 5px;
+        }
+        #cartPannel ul {
+            overflow: auto;
+        }
+        #cartPannel ul::before {
+            content: '批量引用';
+        }
+        #cartPannel li {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            justify-items: start;
+            line-height: 25px;
+        }
+        #cartPannel li > button {
+            border: none;
+            font-size: large;
+            background: none;
+            width: 25px;
+            height: 25px;
+        }
+        #cartPannel li > button:hover {
+            background-color: #ccc;
+            border: 1px solid #666;
+        }
+        #cartPannel > div {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            justify-content: center;
+            align-content: center;
+            justify-items: center;
+        }
+        #cartPannel > div > button {
+            width: 95px;
+        }
     </style>
 </head>
 <body>
@@ -192,9 +256,65 @@
     </nav>
     <main></main>
     <div id="bottomMsgPannel"></div>
+    <div id="cartPannel"></div>
 <script>
     var array_json;
+    var cart_array = [];
+    function addToCart(ss) {
+        if (cart_array.indexOf(ss) == -1) {
+            cart_array.push(ss);
+            updateCartUI();
+        } else {
+            bottom_msg('已经有这一项了。');
+        }
+    }
+    function updateCartUI() {
+        var elm = document.getElementById('cartPannel');
+        if(cart_array.length == 0){
+            elm.style.visibility = 'hidden';
+        } else {
+            elm.style.visibility = 'visible';
+        }
+        var ul = document.createElement("UL");
+        var div = document.createElement('DIV');
+        
+        var btn_to_code = document.createElement('BUTTON');
+        btn_to_code.innerHTML = '<i class="far fa-copy"></i> LaTex 代码';
+        btn_to_code.setAttribute('class', 'btn_cp_list_to_latex');
 
+        var btn_clear = document.createElement('BUTTON');
+        btn_clear.innerHTML = '<i class="fas fa-times"></i> 关闭'
+        btn_clear.onclick = function(e) {
+            cart_array.length = 0;
+            updateCartUI();
+        }
+
+        div.appendChild(btn_clear);
+        div.appendChild(btn_to_code);
+
+        function gen_li(ss) {
+            var li = document.createElement('LI');
+            var p = document.createElement('P');
+            var btn = document.createElement('BUTTON');
+            p.innerHTML = ss;
+            btn.onclick = function(e) {
+                var ck =  e.srcElement.parentElement.querySelector('p').innerHTML;
+                cart_array = cart_array.filter((item) => item != ss);
+                updateCartUI();
+            }
+            btn.innerHTML = '×';
+            li.appendChild(p);
+            li.appendChild(btn);
+            return li;
+        }
+        for (let i=0; i<cart_array.length; i++) {
+            ul.appendChild(gen_li(cart_array[i]));
+        }
+        elm.innerHTML = '';
+        elm.appendChild(ul);
+        elm.appendChild(div);
+        
+    }
     // 下面函数来自 https://www.runoob.com/js/js-obj-date.html
     Date.prototype.format = function(fmt){
         var o = {
@@ -524,7 +644,7 @@
         }
         item_index = e.srcElement.parentElement.parentElement.getAttribute('wxid');
         key = array_json[item_index]['citationKey'];
-        var cfm = confirm("删除第 " + (Number(item_index) + 1) + " 条记录？\n记录名：" + key)
+        var cfm = confirm("删除第 " + (Number(item_index) + 1) + " 条记录？文献 id = " + item_index + "\n记录名：" + key)
         if (cfm == true){
             array_json.splice(item_index, 1);
             updateContent();
@@ -539,6 +659,11 @@
             addStylesheetRules([
                 ['#wx'+ id + ' h1::after',
                     ['content', "'" + entryType + "'"]
+                ]
+            ]);
+            addStylesheetRules([
+                ['#wx'+ id + '::before',
+                    ['content', "'" + id + "'"]
                 ]
             ]);
             var btn_mod = document.createElement("BUTTON");
@@ -567,11 +692,29 @@
             btn_to_clipboard.setAttribute("class", "btn_cp_to_clipboard");
             btn_to_clipboard.innerHTML = '<i class="far fa-clipboard"></i> 复制';
 
+            var btn_to_cart = document.createElement("BUTTON");
+            btn_to_cart.setAttribute("type", "button");
+            btn_to_cart.onclick = function(e) {
+                curr_tag = e.srcElement;
+                if(curr_tag.tagName == 'BUTTON') {
+                    var index = curr_tag.parentElement.parentElement.getAttribute('wxid');
+                } else if (curr_tag.parentElement.tagName == 'BUTTON') {
+                    var index = curr_tag.parentElement.parentElement.parentElement.getAttribute('wxid');
+                } else if (curr_tag.parentElement.parentElement.tagName == "BUTTON") {
+                    var index = curr_tag.parentElement.parentElement.parentElement.parentElement.getAttribute('wxid');
+                } else {
+                    return -1;
+                }
+                addToCart(array_json[index]['citationKey']);
+            }
+            btn_to_cart.innerHTML = '<i class="fas fa-plus"></i> 批量引用';
+
             caption.appendChild(h1);
             caption.appendChild(btn_mod);
             caption.appendChild(btn_del);
             caption.appendChild(btn_to_code);
             caption.appendChild(btn_to_clipboard);
+            caption.appendChild(btn_to_cart);
             caption.appendChild(document.createElement("BR"));
             return caption;
         }
@@ -603,6 +746,7 @@
             document.querySelector("main").appendChild(table);
         }
         citationKey_unique_check();
+        updateCartUI();
     }
     var clipboard = new ClipboardJS('.btn_cite_it_in_latex', {
         text: function(trigger) {
@@ -618,6 +762,21 @@
         }
     });
     clipboard2.on('success', function(e) {
+        bottom_msg("已复制 " + e.text + " 到粘贴版。");
+    });
+    var clipboard3 = new ClipboardJS('.btn_cp_list_to_latex', {
+        text: function(trigger) {
+            str = ''
+            for (let i=0; i<cart_array.length; i++) {
+                if (str != '') {
+                    str = str + ', ';
+                }
+                str = str + cart_array[i];
+            }
+            return '\\cite{' + str + '}';
+        }
+    });
+    clipboard3.on('success', function(e) {
         bottom_msg("已复制 " + e.text + " 到粘贴版。");
     });
     var btm_msg_id = 0;
