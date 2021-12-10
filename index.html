@@ -8,7 +8,16 @@
     <meta http-equiv="Expires" content="0" />
     <script src="bibtexParse.js"></script>
     <script src="clipboard.min.js"></script>
-    <script defer src="Font-Awesome-All.js"></script>
+    <script id="MathJax-script" async
+            src="./MathJax20211210/es5/tex-mml-chtml.js">
+    </script>
+    <script>
+        MathJax = {
+            tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
     <style>
         * {
             padding: 0px;
@@ -82,6 +91,9 @@
             text-overflow: ellipsis;
             text-align: left;
         }
+        main table tr th > img, main table tr td > img {
+            height: 25px;
+        }
         main table > caption {
             display: grid;
             grid-template-columns: 1fr auto auto auto;
@@ -98,6 +110,14 @@
         }
         main table > caption > button {
             width: 90px;
+            display: grid;
+            grid-template-columns: 25px auto;
+            justify-content: start;
+            align-items: center;
+            grid-column-gap: 5px;
+        }
+        main table > caption > button > img {
+            height: 24px;
         }
         main table > caption > h1 {
             flex: 1;
@@ -123,7 +143,7 @@
             flex-direction: column;
             background-color: rgba(255, 255, 255, 0);
             position: fixed;
-            bottom: 40%;
+            top: 5px;
             width: 100%;
             box-sizing: border-box;
             font-family: 'Courier New', Courier, monospace;
@@ -147,6 +167,7 @@
             line-height: 25px;
             margin: 0px 15px;
             text-align: center;
+            font-weight: bold;
         }
         #bottomMsgPannel div > button {
             flex: 0;
@@ -171,7 +192,7 @@
             padding: 0px 2px;
         }
         .btn_cancel_edit {
-            background: #f00;
+            background: #ff4e4e;
             border-radius: 3px;
             color: white;
             font-weight: bold;
@@ -235,6 +256,10 @@
         }
         #cartPannel > div > button {
             width: 95px;
+            display: flex;
+        }
+        #cartPannel > div > button > img {
+            height: 24px;
         }
         .strech {
             flex: 1;
@@ -254,25 +279,44 @@
             border: 1px solid #888;
             padding: 5px 5px;
         }
+        nav label {
+            display: flex;
+            align-items: center;
+        }
+        nav label > img {
+            height: 24px;
+        }
     </style>
 </head>
 <body>
     <nav>
         <div>
-            <label for="file-input" id="file-input-label">打开</label>
+            <label for="file-input" id="file-input-label">
+                <img src="./iconfont.cn/upload.svg" />
+                <span>打开</span>
+            </label>
             <input id="file-input" type="file" accept=".bib,.txt" />
         </div>
         <div>
-            <label for="add-button">添加</label>
+            <label for="add-button">
+                <img src="./iconfont.cn/code.svg" />
+                <span>添加</span>
+            </label>
             <button id="add-button" type="button"></button>
         </div>
         <div>
-            <label for="save-file-button">保存</label>
+            <label for="save-file-button">
+                <img src="./iconfont.cn/download.svg" />
+                <span>保存</span> 
+            </label>
             <button id="save-file-button" type="button"></button>
         </div>
         <div class="strech">&nbsp;</div>
         <div>
-            <label for="settings-button"><i class="fas fa-cog"></i>设置</label>
+            <label for="settings-button">
+                <img src="./iconfont.cn/set.svg" />
+                <span>设置</span>
+            </label>
             <button id="settings-button" type="button"></button>
         </div>
     </nav>
@@ -302,11 +346,11 @@
         var div = document.createElement('DIV');
         
         var btn_to_code = document.createElement('BUTTON');
-        btn_to_code.innerHTML = '<i class="far fa-copy"></i> LaTex 代码';
+        btn_to_code.innerHTML = '<img src="./iconfont.cn/code-braces.svg" style="height: 20px; padding: 2px;"/> <span>代码</span>';
         btn_to_code.setAttribute('class', 'btn_cp_list_to_latex');
 
         var btn_clear = document.createElement('BUTTON');
-        btn_clear.innerHTML = '<i class="fas fa-times"></i> 关闭'
+        btn_clear.innerHTML = '<img src="./iconfont.cn/close.svg" /> <span>取消</span>';
         btn_clear.onclick = function(e) {
             cart_array.length = 0;
             updateCartUI();
@@ -531,7 +575,7 @@
                 return;
             }
             if (new_json_array.length == 0) {
-                alert("输入为空！");
+                alert("输入为空或解析错误");
                 document.body.removeChild(new_div);
                 return;
             }
@@ -592,7 +636,7 @@
         item.style.border = "3px solid blue";
         var btn = item.querySelector(".btn_mod_item");
         btn.setAttribute("class", "btn_cancel_edit");
-        btn.innerHTML = '<i class="fas fa-times"></i> 取消';
+        btn.innerHTML = '<img src="./iconfont.cn/close.svg" /> <span>取消</span>';
         btn.onclick = function() {
             updateContent();
         }
@@ -600,7 +644,7 @@
         // 重命名按钮
         btn_rn = document.createElement("BUTTON");
         btn_rn.setAttribute("type", "button");
-        btn_rn.innerHTML = '<i class="far fa-edit"></i> 重命名';
+        btn_rn.innerHTML = '<img src="./iconfont.cn/rename.svg" /><span>重命名</span>';
         btn_rn.onclick = function(event) {
             if(event.srcElement.tagName != "BUTTON") {
                 if (event.srcElement.parentElement.tagName == "BUTTON") {
@@ -621,7 +665,7 @@
         // 修改文献记录类型按钮
         btn_type = document.createElement("BUTTON");
         btn_type.setAttribute("type", "button");
-        btn_type.innerHTML = '<i class="fas fa-quote-left"></i> 文献类型';
+        btn_type.innerHTML = '<img src="./iconfont.cn/cite.svg" /><span>文献类型</span>';
         btn_type.onclick = function(event) {
             if(event.srcElement.tagName != "BUTTON") {
                 if (event.srcElement.parentElement.tagName == "BUTTON") {
@@ -656,7 +700,7 @@
         });
         function createDeleteTd() {
             td = document.createElement("TD");
-            td.innerHTML = '<i class="fas fa-minus-circle"></i>';
+            td.innerHTML = '<img src="./iconfont.cn/reduce-circle.svg" />';
             td.style.position = 'absolute';
             td.onclick = function() {
                 console.log()
@@ -677,7 +721,7 @@
         var tr = document.createElement("TR");
         var th = document.createElement("TH");
         var td = document.createElement("TD");
-        th.innerHTML = '<i class="fas fa-plus-circle"></i>';
+        th.innerHTML = '<img src="./iconfont.cn/add-circle.svg" />';
         th.onclick = function() {
             var t_pmpt = prompt("文献记录名：" + array_json[item_index]['citationKey'] +
             "\n输入属性名：");
@@ -736,7 +780,7 @@
             btn_mod.onclick = function(e) {
                 mod_item_btn(e);
             }
-            btn_mod.innerHTML = '<i class="fas fa-tools"></i> 修改';
+            btn_mod.innerHTML = '<img src="./iconfont.cn/editor.svg" /> <span>修改</span>';
 
             var btn_del = document.createElement("BUTTON");
             btn_del.setAttribute("type", "button");
@@ -744,17 +788,17 @@
             btn_del.onclick = function(e) {
                 del_item_btn(e);
             }
-            btn_del.innerHTML = '<i class="far fa-trash-alt"></i> 删除';
+            btn_del.innerHTML = '<img src="./iconfont.cn/ashbin.svg" /> <span>删除</span>';
 
             var btn_to_code = document.createElement("BUTTON");
             btn_to_code.setAttribute("type", "button");
             btn_to_code.setAttribute("class", "btn_cite_it_in_latex")
-            btn_to_code.innerHTML = '<i class="far fa-copy"></i> LaTex 代码';
+            btn_to_code.innerHTML = '<img src="./iconfont.cn/code-braces.svg" style="height: 20px; padding: 2px;"/> <span style="font-family: serif; font-size: large; ">$\\LaTeX$</span>';
 
             var btn_to_clipboard = document.createElement("BUTTON");
             btn_to_clipboard.setAttribute("type", "button");
             btn_to_clipboard.setAttribute("class", "btn_cp_to_clipboard");
-            btn_to_clipboard.innerHTML = '<i class="far fa-clipboard"></i> 复制';
+            btn_to_clipboard.innerHTML = '<img src="./iconfont.cn/copy.svg" /> <span>复制</span>';
 
             var btn_to_cart = document.createElement("BUTTON");
             btn_to_cart.setAttribute("type", "button");
@@ -771,7 +815,7 @@
                 }
                 addToCart(array_json[index]['citationKey']);
             }
-            btn_to_cart.innerHTML = '<i class="fas fa-plus"></i> 批量引用';
+            btn_to_cart.innerHTML = '<img src="./iconfont.cn/nav-list.svg" /> <span>批量引用</span>';
 
             caption.appendChild(h1);
             caption.appendChild(btn_mod);
@@ -779,6 +823,7 @@
             caption.appendChild(btn_to_code);
             caption.appendChild(btn_to_clipboard);
             caption.appendChild(btn_to_cart);
+            caption.appendChild(document.createElement("BR"));
             caption.appendChild(document.createElement("BR"));
             return caption;
         }
@@ -811,7 +856,9 @@
         }
         citationKey_unique_check();
         updateCartUI();
+        MathJax.typeset();
     }
+
     var clipboard = new ClipboardJS('.btn_cite_it_in_latex', {
         text: function(trigger) {
             return '\\cite{' + trigger.parentElement.querySelector("h1").innerHTML + '}';
