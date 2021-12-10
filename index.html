@@ -284,7 +284,7 @@
             align-items: center;
         }
         nav label > img {
-            height: 24px;
+            height: 25px;
         }
     </style>
 </head>
@@ -313,6 +313,13 @@
         </div>
         <div class="strech">&nbsp;</div>
         <div>
+            <label for="help-button">
+                <img src="./iconfont.cn/help.svg" />
+                <span>帮助</span>
+            </label>
+            <button id="help-button" type="button"></button>
+        </div>
+        <div>
             <label for="settings-button">
                 <img src="./iconfont.cn/set.svg" />
                 <span>设置</span>
@@ -325,6 +332,16 @@
     <div id="cartPannel"></div>
     <div id="settingsPannel"></div>
 <script>
+    document.onkeyup = function(e) {
+        var currKey=0,e=e||event;
+        currKey=e.keyCode||e.which||e.charCode;
+        // var keyName = String.fromCharCode(currKey);
+        // alert("按键码: " + currKey + " 字符: " + keyName);
+        if(currKey == 27) {
+            updateContent();
+            closeSettingsPannel();
+        }
+    }
     var array_json;
     var cart_array = [];
     function addToCart(ss) {
@@ -394,10 +411,10 @@
             op.setAttribute('value', value);
             return op;
         }
-        slct.appendChild(gen_option('1024px', '1024px'));
         slct.appendChild(gen_option('768px', '768px'));
         slct.appendChild(gen_option('800px', '800px'));
         slct.appendChild(gen_option('900px', '900px'));
+        slct.appendChild(gen_option('1024px', '1024px'));
         slct.appendChild(gen_option('1280px', '1280px'));
         var btn_table_width = document.createElement('BUTTON');
         btn_table_width.innerHTML = 'OK';
@@ -422,6 +439,11 @@
     document.getElementById('settings-button').onclick = function(e) {
         raiseSettingsPannel();
     }
+
+    document.getElementById('help-button').onclick = function(e){
+        alert("按 Esc 刷新");
+    }
+
     // 下面函数来自 https://www.runoob.com/js/js-obj-date.html
     Date.prototype.format = function(fmt){
         var o = {
