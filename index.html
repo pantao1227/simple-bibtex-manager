@@ -355,6 +355,9 @@
     <div id="cartPannel"></div>
     <div id="settingsPannel"></div>
 <script>
+    document.getElementById('version-info').addEventListener('click', function() {
+        window.open("https://codechina.csdn.net/k1435/bibtex-manager", "_blank");
+    });
     document.onkeyup = function(e) {
         var currKey=0,e=e||event;
         currKey=e.keyCode||e.which||e.charCode;
