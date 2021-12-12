@@ -30,6 +30,7 @@
         body {
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         nav {
             flex: 0 0 30px;
@@ -145,7 +146,7 @@
             display: flex;
             flex-direction: column;
             background-color: rgba(255, 255, 255, 0);
-            position: fixed;
+            position: absolute;
             top: 5px;
             width: 100%;
             box-sizing: border-box;
@@ -211,7 +212,7 @@
             background-color: rgba(0, 0, 0, 0.3);
         }
         #cartPannel {
-            position: fixed;
+            position: absolute;
             display: grid;
             grid-template-rows: 1fr auto;
             flex-direction: column;
@@ -273,7 +274,7 @@
         }
         #settingsPannel {
             visibility: hidden;
-            position: fixed;
+            position: absolute;
             top: 35px;
             right: 20px;
             display: grid;
@@ -323,7 +324,13 @@
             </label>
             <button id="save-file-button" type="button"></button>
         </div>
-        <div class="strech">&nbsp;</div>
+        <div>
+            <label for="refresh-button">
+                <img src="./iconfont.cn/refresh.svg" style="height: 21px; margin: 2px;"/>
+                <span>重新载入</span>
+            </label>
+            <button id="refresh-button" type="button" onclick="location.reload();"></button>
+        </div>
         <div>
             <label for="help-button">
                 <img src="./iconfont.cn/help.svg" />
@@ -331,6 +338,7 @@
             </label>
             <button id="help-button" type="button"></button>
         </div>
+        <div class="strech">&nbsp;</div>
         <div>
             <label for="settings-button">
                 <img src="./iconfont.cn/set.svg" />
@@ -466,7 +474,10 @@
     document.getElementById('help-button').onclick = function(e){
         alert("快捷键： 按 Esc 刷新内容 / F5 重载网页\n\
 作者：pt27@live.cn\n\
-致谢：\n    -  图标来源：https://www.iconfont.cn/\n");
+引用：\n\
+    clipboard.js https://www.clipboardjs.com.cn/\n\
+    MathJax https://www.mathjax.org/\n\
+    阿里巴巴矢量图标库 https://www.iconfont.cn/");
     }
 
     // 下面函数来自 https://www.runoob.com/js/js-obj-date.html
@@ -578,7 +589,7 @@
         // bottom_msg('Test message.');
         new_div = document.createElement("DIV");
         new_div.setAttribute('id', 'add-bibtex-float-page');
-        new_div.setAttribute("style", "position: fixed; \
+        new_div.setAttribute("style", "position: absolute; \
         top: 0px; left: 0px; box-sizing: border-box; width: 100%; \
         height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; \
         flex-direction: column; align-items: center; justify-content: center;");
@@ -595,12 +606,15 @@
         ta.setAttribute('style', "padding: 5px; \
             width: 30%; \
             height: 50%; \
-            border: 5px solid #000; \
+            border: 2px solid #000; \
             border-radius: 10px;");
         p.setAttribute('style', "width: 30%; \
-            background: #d5d5d5; \
+            background: #7498a9; \
             padding: 5px; \
-            margin: 10px 0px;")
+            margin: 5px 0px; \
+            border: 2px solid #ccc;\
+            color: white;\
+            border-radius: 4px 4px 4px 4px;")
         btn_ok_add.setAttribute('style', "width: 100px; \
             height: 30px; \
             margin-top: 10px;")
@@ -703,7 +717,7 @@
                 return;
             }
             var k_pmpt = prompt("原记录名： " + array_json[item_index]['citationKey'] +
-                "\n输入新的记录名：");
+                "\n输入新的记录名：", array_json[item_index]['citationKey']);
             if (k_pmpt != null && k_pmpt !='') {
                 array_json[item_index]['citationKey'] = k_pmpt;
             }
@@ -724,7 +738,7 @@
                 return;
             }
             var t_pmpt = prompt("原类型： " + array_json[item_index]['entryType'] +
-                "\n输入新的记录名：");
+                "\n输入新的记录名：", array_json[item_index]['entryType']);
             if (t_pmpt != null && t_pmpt !='') {
                 array_json[item_index]['entryType'] = t_pmpt;
             }
@@ -738,7 +752,7 @@
                 tp = element.parentElement.querySelector('th').innerHTML;
                 vl = element.innerHTML;
                 var pmpt = prompt("文献记录名：" + array_json[item_index]['citationKey'] + 
-                '\n' + tp + ' : ' + vl + '\n新值：');
+                '\n' + tp + ' : ' + vl + '\n新值：', array_json[item_index]['citationKey']);
                 if(pmpt != null && pmpt != '') {
                     array_json[item_index]['entryTags'][tp] = pmpt;
                 }
