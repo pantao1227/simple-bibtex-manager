@@ -6,10 +6,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <script src="bibtexParse.js"></script>
-    <script src="clipboard.min.js"></script>
+    <script src="js/bibtex-simple-parse.js"></script>
+    <script src="js/clipboard.min.js"></script>
     <script id="MathJax-script" async
-            src="./MathJax20211210/es5/tex-mml-chtml.js">
+            src="MathJax20211210/es5/tex-mml-chtml.js">
     </script>
     <script>
         MathJax = {
@@ -124,6 +124,9 @@
             text-align: left;
             grid-row-start: 1;
             grid-row-end: 3;
+            font-size: 25px;
+            white-space: nowrap;
+            font-family: 'DejaVu Sans Mono', 'Courier New', Courier, monospace;
         }
         main table > caption > h1::after {
             margin-left: 10px;
@@ -274,11 +277,19 @@
             top: 35px;
             right: 20px;
             display: grid;
-            grid-template-columns: auto auto auto;
+            grid-template-columns: auto auto auto auto;
             grid-column-gap: 5px;
             background: #fff;
             border: 1px solid #888;
             padding: 5px 5px;
+        }
+        #settingsPannel button:first-child {
+            background-color: rgba(0, 0, 0, 0);
+            border: none;
+            width: 20px;
+        }
+        #settingsPannel button:first-child:hover {
+            border: 1px solid #ccc;
         }
         nav label {
             display: flex;
@@ -339,8 +350,12 @@
         // var keyName = String.fromCharCode(currKey);
         // alert("按键码: " + currKey + " 字符: " + keyName);
         if(currKey == 27) {
-            updateContent();
             closeSettingsPannel();
+            torm = document.getElementById('add-bibtex-float-page');
+            if(torm != null) {
+                torm.parentElement.removeChild(torm);
+            }
+            updateContent();
         }
     }
     var array_json;
@@ -403,6 +418,11 @@
     function raiseSettingsPannel() {
         var settings_pannel = document.getElementById('settingsPannel');
         settings_pannel.style.visibility = 'visible';
+        var btn_close = document.createElement('BUTTON');
+        btn_close.innerHTML = '×';
+        btn_close.onclick = function(e) {
+            closeSettingsPannel();
+        }
         var p = document.createElement('P');
         p.innerHTML = '宽度';
         var slct = document.createElement('SELECT');
@@ -412,6 +432,7 @@
             op.setAttribute('value', value);
             return op;
         }
+        slct.appendChild(gen_option('600px', '600px'));
         slct.appendChild(gen_option('768px', '768px'));
         slct.appendChild(gen_option('800px', '800px'));
         slct.appendChild(gen_option('900px', '900px'));
@@ -428,6 +449,7 @@
             ]);
             closeSettingsPannel();
         }
+        settings_pannel.appendChild(btn_close);
         settings_pannel.appendChild(p);
         settings_pannel.appendChild(slct);
         settings_pannel.appendChild(btn_table_width);
@@ -444,7 +466,7 @@
     document.getElementById('help-button').onclick = function(e){
         alert("快捷键： 按 Esc 刷新内容 / F5 重载网页\n\
 作者：pt27@live.cn\n\
-致谢：\n    -  图标来源：https://www.iconfont.cn/\n    -  BiBTex解析：https://github.com/ORCID/bibtexParseJs");
+致谢：\n    -  图标来源：https://www.iconfont.cn/\n");
     }
 
     // 下面函数来自 https://www.runoob.com/js/js-obj-date.html
@@ -538,7 +560,7 @@
 
         reader.addEventListener('load', function(e) {
             var text = e.target.result;
-            array_json = bibtexParse.toJSON(text);
+            array_json = bibtex_simple_parser.bibtex2json(text);
             updateContent();
         });
 
@@ -550,7 +572,7 @@
         reader.readAsText(file);
     });
     document.getElementById("save-file-button").onclick = function () {
-        download("export.bib", bibtexParse.toBibtex(array_json, false));
+        download("export.bib", bibtex_simple_parser.json2bibtex(array_json, false));
     }
     document.getElementById("add-button").onclick = function() {
         // bottom_msg('Test message.');
@@ -593,7 +615,7 @@
         btn_ok_add.onclick = function() {
             try{
                 var txt = document.getElementById("add-bibtex-float-page").querySelector("textarea").value;
-                var new_json_array = bibtexParse.toJSON(txt);
+                var new_json_array = bibtex_simple_parser.bibtex2json(txt);
             } catch(err) {
                 alert(err);
                 document.body.removeChild(new_div);
