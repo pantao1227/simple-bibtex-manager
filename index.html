@@ -299,6 +299,19 @@
         nav label > img {
             height: 25px;
         }
+        #version-info::before{
+            content: "ver.";
+            font-size: 15px;
+            margin-left: -10px;
+        }
+        #version-info{
+            width: 0;
+            overflow: hidden;
+            transition: width 1s;
+        }
+        #version-info:hover{
+            width: 9em;
+        }
     </style>
 </head>
 <body>
@@ -338,16 +351,16 @@
             </label>
             <button id="help-button" type="button"></button>
         </div>
+        <div class="strech">&nbsp;</div>
+        <!-- DevOps 会用 sed 识别下面一行 -->
+        <div id='version-info'>
+        </div>
         <div>
             <label for="settings-button">
                 <img src="./iconfont.cn/set.svg" />
                 <span>设置</span>
             </label>
             <button id="settings-button" type="button"></button>
-        </div>
-        <div class="strech">&nbsp;</div>
-        <!-- DevOps 会用 sed 识别下面一行 -->
-        <div id='version-info'>
         </div>
     </nav>
     <main></main>
@@ -744,7 +757,7 @@
                 return;
             }
             var t_pmpt = prompt("原类型： " + array_json[item_index]['entryType'] +
-                "\n输入新的记录名：", array_json[item_index]['entryType']);
+                "\n输入新的类型：", array_json[item_index]['entryType']);
             if (t_pmpt != null && t_pmpt !='') {
                 array_json[item_index]['entryType'] = t_pmpt;
             }
@@ -758,7 +771,7 @@
                 tp = element.parentElement.querySelector('th').innerHTML;
                 vl = element.innerHTML;
                 var pmpt = prompt("文献记录名：" + array_json[item_index]['citationKey'] + 
-                '\n' + tp + ' : ' + vl + '\n新值：', array_json[item_index]['citationKey']);
+                '\n' + tp + ' : ' + vl + '\n新值：', vl);
                 if(pmpt != null && pmpt != '') {
                     array_json[item_index]['entryTags'][tp] = pmpt;
                 }
