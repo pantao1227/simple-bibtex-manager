@@ -6,10 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <script src="js/bibtex-simple-parse.js"></script>
-    <script src="js/clipboard.min.js"></script>
+    <script src="./myjs/bibtex-simple-parse.js"></script>
+    <script src="./clipboard.js/clipboard.min.js"></script>
+    <script src="./myjs/mydialog.js"></script>
     <script id="MathJax-script" async
-            src="MathJax20211210/es5/tex-mml-chtml.js">
+            src="./MathJax20211210/es5/tex-mml-chtml.js">
     </script>
     <script>
         MathJax = {
@@ -18,301 +19,8 @@
             }
         };
     </script>
-    <style>
-        * {
-            padding: 0px;
-            margin: 0px;
-        }
-        html, body {
-            width: 100%;
-            height: 100%;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        nav {
-            flex: 0 0 30px;
-            box-sizing: border-box;
-            width: 100%;
-            height: 30px;
-            padding: 0px 10px;
-            box-shadow: 0px 2px 5px #ccc;
-            display: flex;
-            background-color: #fff;
-        }
-        nav * {
-            user-select: none;
-        }
-        nav > div {
-            display: flex;
-            align-items: center;
-            padding: 0px 10px;
-        }
-        nav > div > input {
-            display: none;
-        }
-        nav > div > button {
-            display: none;
-        }
-        nav > div:hover {
-            background-color: #ccc;
-        }
-        main {
-            flex: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-y: auto;
-            padding-bottom: 50px;
-        }
-        main table {
-            table-layout: fixed;
-            width: 768px;
-            box-shadow: 0px 0px 10px 5px #ccc;
-            margin: 15px 0px;
-            padding: 10px 10px;
-            position: relative;
-        }
-        main table tr {
-            display: grid;
-            grid-template-columns: 128px 1fr;
-            align-items: center;
-            line-height: 30px;
-            position: relative;
-        }
-        main table > tr > th {
-            text-align: right;
-            margin-right: 10px;
-        }
-        main table > tr > td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: left;
-        }
-        main table tr th > img, main table tr td > img {
-            height: 25px;
-        }
-        main table > caption {
-            display: grid;
-            grid-template-columns: 1fr auto auto auto;
-            grid-template-rows: auto auto;
-            align-items: center;
-            padding: 10px 20px;
-            grid-column-gap: 10px;
-            grid-row-gap: 5px;
-        }
-        main table > caption > br {
-            width: 100%;
-            box-sizing: border-box;
-            content: '';
-        }
-        main table > caption > button {
-            width: 90px;
-            display: grid;
-            grid-template-columns: 25px auto;
-            justify-content: start;
-            align-items: center;
-            grid-column-gap: 5px;
-        }
-        main table > caption > button > img {
-            height: 24px;
-        }
-        main table > caption > h1 {
-            flex: 1;
-            text-align: left;
-            grid-row-start: 1;
-            grid-row-end: 3;
-            font-size: 25px;
-            white-space: nowrap;
-            font-family: 'DejaVu Sans Mono', 'Courier New', Courier, monospace;
-        }
-        main table > caption > h1::after {
-            margin-left: 10px;
-            color: #ccc;
-        }
-        main table::before {
-            font-family: Arial, Helvetica, sans-serif;
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            height: 17px;
-            text-align: center;
-            box-shadow: 0 0 4px 0px #bbb;
-        }
-        #bottomMsgPannel {
-            display: flex;
-            flex-direction: column;
-            background-color: rgba(255, 255, 255, 0);
-            position: absolute;
-            top: 5px;
-            width: 100%;
-            box-sizing: border-box;
-            font-family: 'Courier New', Courier, monospace;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-        }
-        #bottomMsgPannel div {
-            display: flex;
-            background-color: rgba(38, 117, 148, 0.95);
-            border: 1px solid #000;
-            box-shadow: 0px 0px 5px 1px #666;
-            color: white;
-            min-width: 512px;
-            min-height: 36px;
-            align-items: center;
-            justify-content: center;
-        }
-        #bottomMsgPannel div > p {
-            flex: 1;
-            line-height: 25px;
-            margin: 0px 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-        #bottomMsgPannel div > button {
-            flex: 0;
-            flex-basis: 25px;
-            background-color: rgba(255, 255, 255, 0);
-            border: none;
-            color: white;
-        }
-        .err {
-            border: 3px solid red;
-        }
-        .err::after {
-            content: "ERR";
-            color: red;
-            position: absolute;
-            top: 0px;
-            right: 20px;
-            border-bottom: 3px solid red;
-            border-left: 3px solid red;
-            border-right: 3px solid red;
-            border-radius: 0px 0px 8px 8px;
-            padding: 0px 2px;
-        }
-        .btn_cancel_edit {
-            background: #ff4e4e;
-            border-radius: 3px;
-            color: white;
-            font-weight: bold;
-        }
-        .btn_cancel_edit:hover{
-            background: rgb(112, 0, 0);
-        }
-        .click_to_edit {
-            border: 1px solid #ccc;
-        }
-        .click_to_edit:hover {
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.3);
-        }
-        #cartPannel {
-            position: absolute;
-            display: grid;
-            grid-template-rows: 1fr auto;
-            flex-direction: column;
-            visibility: hidden;
-            width: 200px;
-            height: 240px;
-            right: 20px;
-            top: 40px;
-            background-color: rgb(255, 255, 255);
-            box-shadow: -5px 0px 5px #ccc;
-            border: 1px solid #666;
-            padding: 5px;
-        }
-        #cartPannel ul {
-            overflow: auto;
-        }
-        #cartPannel ul::before {
-            content: '批量引用';
-        }
-        #cartPannel li {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            justify-items: start;
-            line-height: 25px;
-        }
-        #cartPannel li > button {
-            border: none;
-            font-size: large;
-            background: none;
-            width: 25px;
-            height: 25px;
-        }
-        #cartPannel li > button:hover {
-            background-color: #ccc;
-            border: 1px solid #666;
-        }
-        #cartPannel > div {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            justify-content: center;
-            align-content: center;
-            justify-items: center;
-        }
-        #cartPannel > div > button {
-            width: 95px;
-            display: flex;
-            align-items: center;
-        }
-        #cartPannel > div > button > img {
-            height: 24px;
-        }
-        .strech {
-            flex: 1;
-        }
-        .strech:hover {
-            background-color: unset;
-        }
-        #settingsPannel {
-            visibility: hidden;
-            position: absolute;
-            top: 35px;
-            right: 20px;
-            display: grid;
-            grid-template-columns: auto auto auto auto;
-            grid-column-gap: 5px;
-            background: #fff;
-            border: 1px solid #888;
-            padding: 5px 5px;
-        }
-        #settingsPannel button:first-child {
-            background-color: rgba(0, 0, 0, 0);
-            border: none;
-            width: 20px;
-        }
-        #settingsPannel button:first-child:hover {
-            border: 1px solid #ccc;
-        }
-        nav label {
-            display: flex;
-            align-items: center;
-        }
-        nav label > img {
-            height: 25px;
-        }
-        #version-info::before{
-            content: "ver.";
-            font-size: 15px;
-            margin-left: -10px;
-        }
-        #version-info{
-            width: 0;
-            overflow: hidden;
-            transition: width 1s;
-        }
-        #version-info:hover{
-            width: 9em;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/mydialog.css" />
 </head>
 <body>
     <nav>
@@ -328,7 +36,24 @@
                 <img src="./iconfont.cn/code.svg" />
                 <span>添加</span>
             </label>
-            <button id="add-button" type="button"></button>
+            <button id="add-button" type="button" onclick="mydialog.prompt_multiline('输入 BiBTeX 代码', '', function(r){
+                try {
+                    var new_json_array = bibtex_simple_parser.bibtex2json(r);
+                } catch (err) {
+                    alert(err);
+                    return;
+                }
+                if (new_json_array.length == 0) {
+                    alert('输入为空或解析错误');
+                    return;
+                }
+                if(!array_json){
+                    array_json = new_json_array;
+                } else {
+                    array_json = array_json.concat(new_json_array);
+                }
+                updateContent();
+            });"></button>
         </div>
         <div>
             <label for="save-file-button">
@@ -349,7 +74,7 @@
                 <img src="./iconfont.cn/help.svg" />
                 <span>帮助</span>
             </label>
-            <button id="help-button" type="button"></button>
+            <button id="help-button" type="button" onclick="mydialog.show('dialog-help');"></button>
         </div>
         <div class="strech">&nbsp;</div>
         <!-- DevOps 会用 sed 识别下面一行 -->
@@ -367,6 +92,29 @@
     <div id="bottomMsgPannel"></div>
     <div id="cartPannel"></div>
     <div id="settingsPannel"></div>
+    <div id="dialog-help" title="帮助信息" style="display: none;">
+        <div name='title'>帮助信息</div>
+        <b>快捷键</b>
+        <div style="display: flex; flex-direction: column;">
+            <p>按 Esc 刷新内容</p>
+            <p>F5 重载网页</p>
+        </div>
+        <br>
+        <b>作者</b>
+        <p>pt27@live.cn</p>
+        <br>
+        <b>引用</b>
+        <div style="display: grid; grid-template-columns: auto 1fr; align-items: center; grid-column-gap: 10px;">
+            <p>clipboard.js</p><p><a href="https://www.clipboardjs.com.cn/">https://www.clipboardjs.com.cn/</a></p>
+            <p>MathJax</p><p><a href="https://www.mathjax.org/">https://www.mathjax.org/</a></p>
+            <p>阿里巴巴矢量图标库</p><p><a href="https://www.iconfont.cn/">https://www.iconfont.cn/</a></p>
+        </div>
+        <div class="dialog-button-bar">
+            <button type="button" onclick="
+            document.getElementById('dialog-help').parentElement.querySelector('.dialog-close-btn').click();
+            ">确认</button>
+        </div>
+    </div>
 <script>
     document.getElementById('version-info').addEventListener('click', function() {
         window.open("https://codechina.csdn.net/k1435/bibtex-manager", "_blank");
@@ -490,15 +238,6 @@
         raiseSettingsPannel();
     }
 
-    document.getElementById('help-button').onclick = function(e){
-        alert("快捷键： 按 Esc 刷新内容 / F5 重载网页\n\
-作者：pt27@live.cn\n\
-引用：\n\
-    clipboard.js https://www.clipboardjs.com.cn/\n\
-    MathJax https://www.mathjax.org/\n\
-    阿里巴巴矢量图标库 https://www.iconfont.cn/");
-    }
-
     // 下面函数来自 https://www.runoob.com/js/js-obj-date.html
     Date.prototype.format = function(fmt){
         var o = {
@@ -604,77 +343,25 @@
     document.getElementById("save-file-button").onclick = function () {
         download("export.bib", bibtex_simple_parser.json2bibtex(array_json, false));
     }
-    document.getElementById("add-button").onclick = function() {
-        // bottom_msg('Test message.');
-        new_div = document.createElement("DIV");
-        new_div.setAttribute('id', 'add-bibtex-float-page');
-        new_div.setAttribute("style", "position: absolute; \
-        top: 0px; left: 0px; box-sizing: border-box; width: 100%; \
-        height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; \
-        flex-direction: column; align-items: center; justify-content: center;");
-        var p = document.createElement("P");
-        p.innerHTML = '在此输入 Latex 代码：'
-        var ta = document.createElement("TEXTAREA");
-        var btn_ok_add = document.createElement("BUTTON");
-        var btn_cancel_add = document.createElement("BUTTON");
-        btn_ok_add.innerHTML = '确认';
-        btn_cancel_add.innerHTML = '取消';
-        btn_ok_add.setAttribute('type', 'button');
-        btn_cancel_add.setAttribute('type', 'button');
-        //style
-        ta.setAttribute('style', "padding: 5px; \
-            width: 30%; \
-            height: 50%; \
-            border: 2px solid #000; \
-            border-radius: 10px;");
-        p.setAttribute('style', "width: 30%; \
-            background: #7498a9; \
-            padding: 5px; \
-            margin: 5px 0px; \
-            border: 2px solid #ccc;\
-            color: white;\
-            border-radius: 4px 4px 4px 4px;")
-        btn_ok_add.setAttribute('style', "width: 100px; \
-            height: 30px; \
-            margin-top: 10px;")
-        btn_cancel_add.setAttribute('style', "width: 100px; \
-            height: 30px; \
-            margin-top: 10px;")
-        // function
-        btn_cancel_add.onclick = function() {
-            updateContent();
-            document.body.removeChild(new_div);
+    function add_to_array_json(txt) {
+        try{
+            var new_json_array = bibtex_simple_parser.bibtex2json(txt);
+        } catch(err) {
+            alert(err);
+            return;
         }
-        btn_ok_add.onclick = function() {
-            try{
-                var txt = document.getElementById("add-bibtex-float-page").querySelector("textarea").value;
-                var new_json_array = bibtex_simple_parser.bibtex2json(txt);
-            } catch(err) {
-                alert(err);
-                document.body.removeChild(new_div);
-                return;
-            }
-            if (new_json_array.length == 0) {
-                alert("输入为空或解析错误");
-                document.body.removeChild(new_div);
-                return;
-            }
-            if(!array_json){
-                array_json = new_json_array;
-            } else {
-                array_json = array_json.concat(new_json_array);
-            }
-            document.body.removeChild(new_div);
-            updateContent();
+        if (new_json_array.length == 0) {
+            alert("输入为空或解析错误");
+            return;
         }
-        // layout
-        new_div.appendChild(p);
-        new_div.appendChild(ta);
-        new_div.appendChild(btn_ok_add);
-        new_div.appendChild(btn_cancel_add);
-        document.querySelector('body').appendChild(new_div);
-        ta.focus();
+        if(!array_json){
+            array_json = new_json_array;
+        } else {
+            array_json = array_json.concat(new_json_array);
+        }
+        updateContent();
     }
+    
     function addStylesheetRules (decls) {
         var style = document.createElement('style');
         document.getElementsByTagName('head')[0].appendChild(style);
@@ -732,15 +419,12 @@
                 } else if (event.srcElement.parentElement.parentElement.tagName == "BUTTON") {
                     event.srcElement.parentElement.parentElement.click();
                 }
-                updateContent();
                 return;
             }
-            var k_pmpt = prompt("原记录名： " + array_json[item_index]['citationKey'] +
-                "\n输入新的记录名：", array_json[item_index]['citationKey']);
-            if (k_pmpt != null && k_pmpt !='') {
-                array_json[item_index]['citationKey'] = k_pmpt;
-            }
-            updateContent();
+            mydialog.prompt('输入新的记录名', array_json[item_index]['citationKey'], function(r) {
+                array_json[item_index]['citationKey'] = r;
+                updateContent();
+            });
         }
         // 修改文献记录类型按钮
         btn_type = document.createElement("BUTTON");
@@ -753,29 +437,24 @@
                 } else if (event.srcElement.parentElement.parentElement.tagName == "BUTTON") {
                     event.srcElement.parentElement.parentElement.click();
                 }
-                updateContent();
                 return;
             }
-            var t_pmpt = prompt("原类型： " + array_json[item_index]['entryType'] +
-                "\n输入新的类型：", array_json[item_index]['entryType']);
-            if (t_pmpt != null && t_pmpt !='') {
-                array_json[item_index]['entryType'] = t_pmpt;
-            }
-            updateContent();
+            mydialog.prompt('输入新的类型', array_json[item_index]['entryType'], function(r) {
+                array_json[item_index]['entryType'] = r;
+                updateContent();
+            });
         }
         cap.appendChild(btn_rn);
         cap.appendChild(btn_type);
         item.querySelectorAll('td').forEach(element => {
             element.classList.add('click_to_edit');
             element.onclick = function() {
-                tp = element.parentElement.querySelector('th').innerHTML;
-                vl = element.innerHTML;
-                var pmpt = prompt("文献记录名：" + array_json[item_index]['citationKey'] + 
-                '\n' + tp + ' : ' + vl + '\n新值：', vl);
-                if(pmpt != null && pmpt != '') {
-                    array_json[item_index]['entryTags'][tp] = pmpt;
-                }
-                updateContent();
+                var type_key = element.parentElement.querySelector('th').innerHTML;
+                var type_val = element.innerHTML;
+                mydialog.prompt('新值', type_val, function(r){
+                    array_json[item_index]['entryTags'][type_key] = r;
+                    updateContent(); 
+                });
             }
         });
         function createDeleteTd() {
@@ -803,17 +482,10 @@
         var td = document.createElement("TD");
         th.innerHTML = '<img src="./iconfont.cn/add-circle.svg" />';
         th.onclick = function() {
-            var t_pmpt = prompt("文献记录名：" + array_json[item_index]['citationKey'] +
-            "\n输入属性名：");
-            if (t_pmpt != null && t_pmpt != '') {
-                var v_pmpt =  prompt("文献记录名：" + array_json[item_index]['citationKey'] +
-                    "\n属性名：" + t_pmpt +
-                    "\n输入属性值：");
-                if (v_pmpt != null && v_pmpt != '') {
-                    array_json[item_index]['entryTags'][t_pmpt] = v_pmpt;
-                }
-            }
-            updateContent();
+            mydialog.prompt_double('属性名', '', '属性值', '', function(r1, r2){
+                array_json[item_index]['entryTags'][r1] = r2;
+                updateContent();
+            });
         }
         td.innerHTML = '添加属性';
         tr.appendChild(th);

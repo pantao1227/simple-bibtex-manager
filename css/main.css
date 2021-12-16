@@ -1,0 +1,293 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+html, body {
+    width: 100%;
+    height: 100%;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+nav {
+    flex: 0 0 30px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 30px;
+    padding: 0px 10px;
+    box-shadow: 0px 2px 5px #ccc;
+    display: flex;
+    background-color: #fff;
+}
+nav * {
+    user-select: none;
+}
+nav > div {
+    display: flex;
+    align-items: center;
+    padding: 0px 10px;
+}
+nav > div > input {
+    display: none;
+}
+nav > div > button {
+    display: none;
+}
+nav > div:hover {
+    background-color: #ccc;
+}
+main {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    padding-bottom: 50px;
+}
+main table {
+    table-layout: fixed;
+    width: 768px;
+    box-shadow: 0px 0px 10px 5px #ccc;
+    margin: 15px 0px;
+    padding: 10px 10px;
+    position: relative;
+}
+main table tr {
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    align-items: center;
+    line-height: 30px;
+    position: relative;
+}
+main table > tr > th {
+    text-align: right;
+    margin-right: 10px;
+}
+main table > tr > td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+main table tr th > img, main table tr td > img {
+    height: 25px;
+}
+main table > caption {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    padding: 10px 20px;
+    grid-column-gap: 10px;
+    grid-row-gap: 5px;
+}
+main table > caption > br {
+    width: 100%;
+    box-sizing: border-box;
+    content: '';
+}
+main table > caption > button {
+    width: 90px;
+    display: grid;
+    grid-template-columns: 25px auto;
+    justify-content: start;
+    align-items: center;
+    grid-column-gap: 5px;
+}
+main table > caption > button > img {
+    height: 24px;
+}
+main table > caption > h1 {
+    flex: 1;
+    text-align: left;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    font-size: 25px;
+    white-space: nowrap;
+    font-family: 'DejaVu Sans Mono', 'Courier New', Courier, monospace;
+}
+main table > caption > h1::after {
+    margin-left: 10px;
+    color: #ccc;
+}
+main table::before {
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    height: 17px;
+    text-align: center;
+    box-shadow: 0 0 4px 0px #bbb;
+}
+#bottomMsgPannel {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0);
+    position: absolute;
+    top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+#bottomMsgPannel div {
+    display: flex;
+    background-color: rgba(38, 117, 148, 0.95);
+    border: 1px solid #000;
+    box-shadow: 0px 0px 5px 1px #666;
+    color: white;
+    min-width: 512px;
+    min-height: 36px;
+    align-items: center;
+    justify-content: center;
+}
+#bottomMsgPannel div > p {
+    flex: 1;
+    line-height: 25px;
+    margin: 0px 15px;
+    text-align: center;
+    font-weight: bold;
+}
+#bottomMsgPannel div > button {
+    flex: 0;
+    flex-basis: 25px;
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+    color: white;
+}
+.err {
+    border: 3px solid red;
+}
+.err::after {
+    content: "ERR";
+    color: red;
+    position: absolute;
+    top: 0px;
+    right: 20px;
+    border-bottom: 3px solid red;
+    border-left: 3px solid red;
+    border-right: 3px solid red;
+    border-radius: 0px 0px 8px 8px;
+    padding: 0px 2px;
+}
+.btn_cancel_edit {
+    background: #ff4e4e;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+}
+.btn_cancel_edit:hover{
+    background: rgb(112, 0, 0);
+}
+.click_to_edit {
+    border: 1px solid #ccc;
+}
+.click_to_edit:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+#cartPannel {
+    position: absolute;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    flex-direction: column;
+    visibility: hidden;
+    width: 200px;
+    height: 240px;
+    right: 20px;
+    top: 40px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: -5px 0px 5px #ccc;
+    border: 1px solid #666;
+    padding: 5px;
+}
+#cartPannel ul {
+    overflow: auto;
+}
+#cartPannel ul::before {
+    content: '批量引用';
+}
+#cartPannel li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    justify-items: start;
+    line-height: 25px;
+}
+#cartPannel li > button {
+    border: none;
+    font-size: large;
+    background: none;
+    width: 25px;
+    height: 25px;
+}
+#cartPannel li > button:hover {
+    background-color: #ccc;
+    border: 1px solid #666;
+}
+#cartPannel > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    justify-items: center;
+}
+#cartPannel > div > button {
+    width: 95px;
+    display: flex;
+    align-items: center;
+}
+#cartPannel > div > button > img {
+    height: 24px;
+}
+.strech {
+    flex: 1;
+}
+.strech:hover {
+    background-color: unset;
+}
+#settingsPannel {
+    visibility: hidden;
+    position: absolute;
+    top: 35px;
+    right: 20px;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    grid-column-gap: 5px;
+    background: #fff;
+    border: 1px solid #888;
+    padding: 5px 5px;
+}
+#settingsPannel button:first-child {
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+    width: 20px;
+}
+#settingsPannel button:first-child:hover {
+    border: 1px solid #ccc;
+}
+nav label {
+    display: flex;
+    align-items: center;
+}
+nav label > img {
+    height: 25px;
+}
+#version-info::before{
+    content: "ver.";
+    font-size: 15px;
+    margin-left: -10px;
+}
+#version-info{
+    width: 0;
+    overflow: hidden;
+    transition: width 1s;
+}
+#version-info:hover{
+    width: 9em;
+}
